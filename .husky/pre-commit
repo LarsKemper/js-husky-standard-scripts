@@ -1,0 +1,46 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+NC='\033[0m'
+
+echo '--- Styling, testing and building your project before committing ---'
+
+npm run format
+
+# Check Prettier standards
+npm run check-format ||
+(
+    echo "${RED}Prettier Check Failed. Run npm run format, add changes and try commit again. ☓${NC}";
+    false;
+)
+echo "${GREEN}01/05 Prettier passed ✓${NC}";
+
+# Check ESLint Standards
+npm run check-lint ||
+(
+    echo "${RED}ESLint Check Failed. Make the required changes listed above, add changes and try to commit again. ☓${NC}";
+    false; 
+)
+echo "${GREEN}02/05 ESLint passed ✓${NC}";
+
+
+# Check tsconfig standards
+npm run check-types ||
+(
+    echo "${RED}Failed Type Check. Make the changes required above. ☓${NC}";
+    false;
+)
+echo "${GREEN}03/05 TS Type Check passed ✓${NC}";
+
+npm run build ||
+(
+    echo "${RED}Next build failed: View the errors above to see why.☓${NC}";
+    false;
+)
+echo "${GREEN}04/05 Build passed ✓${NC}";
+
+# Generate Databse UML
+npx prisma-uml ./prisma/schema.prisma --output svg --file ./uml.svg
+git add ./uml.svg
