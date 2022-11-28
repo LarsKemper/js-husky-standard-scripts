@@ -1,0 +1,1 @@
+# nextjs-husky-standard-scripts
